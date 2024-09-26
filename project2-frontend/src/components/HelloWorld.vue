@@ -1,22 +1,17 @@
-<script setup>
-defineProps({
-  msg: {
-    type: String,
-    required: true
-  }
-})
+<script setup lang="ts">
+defineProps<{
+  msg: string
+}>()
 </script>
 
 <template>
   <div class="greetings">
     <h1 class="green">{{ msg }}</h1>
     <h3>
-      Find the perfect course to enhance your skills
+      You’ve successfully created a project with
+      <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +
+      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>. What's next?
     </h3>
-    <div class="search-bar">
-      <input type="text" placeholder="Search for courses..." />
-      <button>Search</button>
-    </div>
   </div>
 </template>
 
