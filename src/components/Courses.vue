@@ -24,30 +24,32 @@ const filteredCourses = computed(() => {
 
 <template>
   <div class="courses-container">
-    <h1>Courses</h1>
-    
-    <div class="filters">
-      <label>
-        Department:
-        <select v-model="selectedDepartment">
-          <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
-        </select>
-      </label>
-      <label>
-        Semester:
-        <select v-model="selectedSemester">
-          <option v-for="sem in semesters" :key="sem" :value="sem">{{ sem }}</option>
-        </select>
-      </label>
-    </div>
+    <div class="centered-content">
+      <h1>Courses</h1>
+      
+      <div class="filters">
+        <label>
+          Department:
+          <select v-model="selectedDepartment">
+            <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
+          </select>
+        </label>
+        <label>
+          Semester:
+          <select v-model="selectedSemester">
+            <option v-for="sem in semesters" :key="sem" :value="sem">{{ sem }}</option>
+          </select>
+        </label>
+      </div>
 
-    <div class="course-list">
-      <div v-for="course in filteredCourses" :key="course.id" class="course-card">
-        <h2>{{ course.title }}</h2>
-        <p>{{ course.description }}</p>
-        <p>Enrollment: {{ course.enrollment }}</p>
-        <p>Department: {{ course.department }}</p>
-        <p>Semester: {{ course.semester }}</p>
+      <div class="course-list">
+        <div v-for="course in filteredCourses" :key="course.id" class="course-card">
+          <h2>{{ course.title }}</h2>
+          <p>{{ course.description }}</p>
+          <p>Enrollment: {{ course.enrollment }}</p>
+          <p>Department: {{ course.department }}</p>
+          <p>Semester: {{ course.semester }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -55,7 +57,16 @@ const filteredCourses = computed(() => {
 
 <style scoped>
 .courses-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
   padding: 2rem;
+}
+
+.centered-content {
+  text-align: center;
+  width: 100%;
 }
 
 .filters {
@@ -70,11 +81,13 @@ const filteredCourses = computed(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
+  justify-content: center;
 }
 
 .course-card {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 1rem;
+  text-align: left;
 }
 </style>
