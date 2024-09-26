@@ -37,10 +37,38 @@ h3 {
   text-align: center;
 }
 
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.search-bar input {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+}
+
+.search-bar button {
+  padding: 10px 20px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  margin-left: 2px; /* Added margin to move the button 5px to the right */
+}
+
 @media (min-width: 1024px) {
   .greetings h1,
   .greetings h3 {
     text-align: left;
+  }
+
+  .search-bar {
+    justify-content: flex-start;
   }
 }
 </style>
