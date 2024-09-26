@@ -5,7 +5,7 @@ import TheWelcome from './components/TheWelcome.vue'
 
 <template>
   <header>
-    <img alt="Course Logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <img alt="Course Logo" class="logo" src="@/assets/e3.gif" width="125" height="125" />
     <nav>
       <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/courses">Courses</RouterLink>
