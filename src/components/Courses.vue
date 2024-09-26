@@ -57,11 +57,11 @@ const filteredCourses = computed(() => {
 
 <style scoped>
 .courses-container {
+  padding: 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 2rem;
 }
 
 .centered-content {
@@ -88,6 +88,5 @@ const filteredCourses = computed(() => {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 1rem;
-  text-align: left;
 }
 </style>
