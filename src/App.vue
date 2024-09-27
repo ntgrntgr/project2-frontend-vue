@@ -14,6 +14,7 @@ const toggleNotifications = () => {
     <nav>
       <router-link to="/">Home</router-link>
       <router-link to="/courses">Courses</router-link>
+      <router-link to="/add-course">Add Course</router-link>
       <button @click="toggleNotifications" class="notifications-button">
         <i class="fas fa-bell"></i>
       </button>
