@@ -1,22 +1,36 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const showNotifications = ref(false);
+const isAuthenticated = ref(false);
+const router = useRouter();
 
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value;
 };
+
+const logout = () => {
+  localStorage.removeItem('isAuthenticated');
+  isAuthenticated.value = false;
+  router.push({ name: 'login' });
+};
+
+onMounted(() => {
+  isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true';
+});
 </script>
 
 <template>
-  <header>
+  <header v-if="isAuthenticated">
     <img alt="Course Logo" class="logo" src="@/assets/e3.gif" width="150" height="150" />
     <nav>
-      <router-link to="/">Home</router-link>
+      <router-link to="/home">Home</router-link>
       <router-link to="/courses">Courses</router-link>
       <button @click="toggleNotifications" class="notifications-button">
         <i class="fas fa-bell"></i>
       </button>
+      <button @click="logout" class="logout-button">Logout</button>
     </nav>
   </header>
 
@@ -110,6 +124,15 @@ nav a:first-of-type {
 
 .notifications-popup li {
   margin-bottom: 0.5rem;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text);
+  padding: 0 1rem;
 }
 
 @media (min-width: 1024px) {
