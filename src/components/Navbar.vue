@@ -77,7 +77,6 @@ nav a:first-of-type {
 }
 
 
-
 .notifications-popup {
   position: fixed;
   top: 60px;

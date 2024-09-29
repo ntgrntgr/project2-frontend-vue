@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-
+import Navbar from './Navbar.vue';
 // Dummy data for courses (replace with actual API call later)
 const courses = ref([
   { id: 1, title: 'Introduction to Computer Science', description: 'Learn the basics of programming', enrollment: 150, department: 'Computer Science', semester: 'Fall 2023' },
@@ -23,6 +23,9 @@ const filteredCourses = computed(() => {
 </script>
 
 <template>
+  <div>
+    <Navbar />
+  </div>
   <div class="courses-container">
     <div class="centered-content">
       <h1>Courses</h1>

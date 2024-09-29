@@ -1,10 +1,17 @@
 <script setup>
+import { ref, watch } from 'vue';
 import Navbar from './components/Navbar.vue';
+
+const isAuthenticated = ref(localStorage.getItem('isAuthenticated') === 'true');
+
+watch(isAuthenticated, (newValue) => {
+  localStorage.setItem('isAuthenticated', newValue);
+});
 </script>
 
 <template>
   <div class="welcome-wrapper">
-    <Navbar />
+    <Navbar v-if="isAuthenticated" />
     <router-view></router-view>
   </div>
 </template>
