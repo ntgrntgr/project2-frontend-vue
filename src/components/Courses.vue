@@ -45,7 +45,16 @@ const courses = ref([
   { id: 38, title: 'Chemistry', description: 'Learn about chemistry', enrollment: 50, department: 'Chemistry', semester: 'Spring 2024' },
   { id: 39, title: 'Geology', description: 'Learn about geology', enrollment: 40, department: 'Geology', semester: 'Fall 2023' },
   { id: 40, title: 'Astronomy', description: 'Learn about astronomy', enrollment: 30, department: 'Astronomy', semester: 'Spring 2024' },
-  // Add more dummy courses as needed
+  { id: 41, title: 'Calculus I', description: 'Learn the basics of calculus', enrollment: 150, department: 'Mathematics', semester: 'Fall 2023' },
+  { id: 42, title: 'Calculus II', description: 'Explore advanced calculus concepts', enrollment: 140, department: 'Mathematics', semester: 'Spring 2024' },
+  { id: 43, title: 'Linear Algebra', description: 'Learn about linear algebra', enrollment: 130, department: 'Mathematics', semester: 'Fall 2023' },
+  { id: 44, title: 'Differential Equations', description: 'Explore differential equations', enrollment: 120, department: 'Mathematics', semester: 'Spring 2024' },
+  { id: 45, title: 'Probability and Statistics', description: 'Learn about probability and statistics', enrollment: 110, department: 'Mathematics', semester: 'Fall 2023' },
+  { id: 46, title: 'Discrete Mathematics', description: 'Learn about discrete mathematics', enrollment: 100, department: 'Mathematics', semester: 'Spring 2024' },
+  { id: 47, title: 'Number Theory', description: 'Explore number theory', enrollment: 90, department: 'Mathematics', semester: 'Fall 2023' },
+  { id: 48, title: 'Mathematical Logic', description: 'Learn about mathematical logic', enrollment: 80, department: 'Mathematics', semester: 'Spring 2024' },
+  { id: 49, title: 'Complex Analysis', description: 'Explore complex analysis', enrollment: 70, department: 'Mathematics', semester: 'Fall 2023' },
+  { id: 50, title: 'Topology', description: 'Learn about topology', enrollment: 60, department: 'Mathematics', semester: 'Spring 2024' },
 ]);
 
 const departments = ['All', 'Computer Science', 'Mathematics']; // Add more departments as needed
