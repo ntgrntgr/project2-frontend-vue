@@ -1,74 +1,36 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Navbar from './Navbar.vue';
-import { saveAs } from 'file-saver'; // Add this import for file saving
+import axios from 'axios'; // Import axios for API calls
+import { saveAs } from 'file-saver';
 
-// Dummy data for courses (replace with actual API call later)
-const courses = ref([
-  { id: 1, title: 'Introduction to Computer Science', description: 'Learn the basics of programming', enrollment: 150, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 2, title: 'Advanced Mathematics', description: 'Explore complex mathematical concepts', enrollment: 80, department: 'Mathematics', semester: 'Spring 2024' },
-  { id: 3, title: 'Introduction to Physics', description: 'Learn the basics of physics', enrollment: 120, department: 'Physics', semester: 'Fall 2023' },
-  { id: 4, title: 'Data Structures and Algorithms', description: 'Learn about data structures and algorithms', enrollment: 100, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 5, title: 'Artificial Intelligence', description: 'Explore the world of AI', enrollment: 90, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 6, title: 'Machine Learning', description: 'Learn about machine learning', enrollment: 70, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 7, title: 'Deep Learning', description: 'Explore the depths of deep learning', enrollment: 60, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 8, title: 'Neural Networks', description: 'Learn about neural networks', enrollment: 50, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 9, title: 'Computer Vision', description: 'Explore the world of computer vision', enrollment: 40, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 10, title: 'Natural Language Processing', description: 'Learn about NLP', enrollment: 30, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 11, title: 'Reinforcement Learning', description: 'Explore the world of reinforcement learning', enrollment: 20, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 12, title: 'Robotics', description: 'Learn about robotics', enrollment: 10, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 13, title: 'Databases', description: 'Learn about databases', enrollment: 150, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 14, title: 'Web Development', description: 'Learn about web development', enrollment: 140, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 15, title: 'Mobile Development', description: 'Learn about mobile development', enrollment: 130, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 16, title: 'Cloud Computing', description: 'Learn about cloud computing', enrollment: 120, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 17, title: 'Cybersecurity', description: 'Learn about cybersecurity', enrollment: 110, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 18, title: 'Networks', description: 'Learn about networks', enrollment: 100, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 19, title: 'Operating Systems', description: 'Learn about operating systems', enrollment: 90, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 20, title: 'Software Engineering', description: 'Learn about software engineering', enrollment: 80, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 21, title: 'Game Development', description: 'Learn about game development', enrollment: 70, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 22, title: 'Data Science', description: 'Learn about data science', enrollment: 60, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 23, title: 'Big Data', description: 'Learn about big data', enrollment: 50, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 24, title: 'IoT', description: 'Learn about IoT', enrollment: 40, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 25, title: 'Blockchain', description: 'Learn about blockchain', enrollment: 30, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 26, title: 'Quantum Computing', description: 'Learn about quantum computing', enrollment: 20, department: 'Computer Science', semester: 'Spring 2024' },
-  { id: 27, title: 'Bioinformatics', description: 'Learn about bioinformatics', enrollment: 10, department: 'Computer Science', semester: 'Fall 2023' },
-  { id: 28, title: 'Introduction to Psychology', description: 'Learn about psychology', enrollment: 150, department: 'Psychology', semester: 'Spring 2024' },
-  { id: 29, title: 'Sociology', description: 'Learn about sociology', enrollment: 140, department: 'Sociology', semester: 'Fall 2023' },
-  { id: 30, title: 'Economics', description: 'Learn about economics', enrollment: 130, department: 'Economics', semester: 'Spring 2024' },
-  { id: 31, title: 'Business Management', description: 'Learn about business management', enrollment: 120, department: 'Business', semester: 'Fall 2023' },
-  { id: 32, title: 'Marketing', description: 'Learn about marketing', enrollment: 110, department: 'Business', semester: 'Spring 2024' },
-  { id: 33, title: 'Finance', description: 'Learn about finance', enrollment: 100, department: 'Business', semester: 'Fall 2023' },
-  { id: 34, title: 'Accounting', description: 'Learn about accounting', enrollment: 90, department: 'Business', semester: 'Spring 2024' },
-  { id: 35, title: 'Human Resources', description: 'Learn about human resources', enrollment: 80, department: 'Business', semester: 'Fall 2023' },
-  { id: 36, title: 'Environmental Science', description: 'Learn about environmental science', enrollment: 70, department: 'Environmental Science', semester: 'Spring 2024' },
-  { id: 37, title: 'Biology', description: 'Learn about biology', enrollment: 60, department: 'Biology', semester: 'Fall 2023' },
-  { id: 38, title: 'Chemistry', description: 'Learn about chemistry', enrollment: 50, department: 'Chemistry', semester: 'Spring 2024' },
-  { id: 39, title: 'Geology', description: 'Learn about geology', enrollment: 40, department: 'Geology', semester: 'Fall 2023' },
-  { id: 40, title: 'Astronomy', description: 'Learn about astronomy', enrollment: 30, department: 'Astronomy', semester: 'Spring 2024' },
-  { id: 41, title: 'Calculus I', description: 'Learn the basics of calculus', enrollment: 150, department: 'Mathematics', semester: 'Fall 2023' },
-  { id: 42, title: 'Calculus II', description: 'Explore advanced calculus concepts', enrollment: 140, department: 'Mathematics', semester: 'Spring 2024' },
-  { id: 43, title: 'Linear Algebra', description: 'Learn about linear algebra', enrollment: 130, department: 'Mathematics', semester: 'Fall 2023' },
-  { id: 44, title: 'Differential Equations', description: 'Explore differential equations', enrollment: 120, department: 'Mathematics', semester: 'Spring 2024' },
-  { id: 45, title: 'Probability and Statistics', description: 'Learn about probability and statistics', enrollment: 110, department: 'Mathematics', semester: 'Fall 2023' },
-  { id: 46, title: 'Discrete Mathematics', description: 'Learn about discrete mathematics', enrollment: 100, department: 'Mathematics', semester: 'Spring 2024' },
-  { id: 47, title: 'Number Theory', description: 'Explore number theory', enrollment: 90, department: 'Mathematics', semester: 'Fall 2023' },
-  { id: 48, title: 'Mathematical Logic', description: 'Learn about mathematical logic', enrollment: 80, department: 'Mathematics', semester: 'Spring 2024' },
-  { id: 49, title: 'Complex Analysis', description: 'Explore complex analysis', enrollment: 70, department: 'Mathematics', semester: 'Fall 2023' },
-  { id: 50, title: 'Topology', description: 'Learn about topology', enrollment: 60, department: 'Mathematics', semester: 'Spring 2024' },
-]);
-
+const courses = ref([]);
 const departments = ['All', 'Computer Science', 'Mathematics']; // Add more departments as needed
 const semesters = ['All', 'Fall 2023', 'Spring 2024']; // Add more semesters as needed
 
 const selectedDepartment = ref('All');
 const selectedSemester = ref('All');
-const exportFormat = ref('CSV'); // New state for export format
+const exportFormat = ref('CSV');
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => 
     (selectedDepartment.value === 'All' || course.department === selectedDepartment.value) &&
     (selectedSemester.value === 'All' || course.semester === selectedSemester.value)
   );
+});
+
+// Fetch courses from the backend API
+const fetchCourses = async () => {
+  try {
+    const response = await axios.get('http://localhost:3100/api/course'); 
+    courses.value = response.data; // Assume your API returns an array of courses
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+  }
+};
+
+onMounted(() => {
+  fetchCourses(); // Fetch courses when the component is mounted
 });
 
 const exportCourses = () => {
@@ -86,8 +48,6 @@ const exportCourses = () => {
     const encodedUri = encodeURI(csvContent);
     saveAs(new Blob([csvContent]), 'courses.csv');
   } else if (exportFormat.value === 'PDF') {
-    // PDF generation logic (using a library like jsPDF)
-    // Placeholder for PDF export
     alert('PDF export functionality is not implemented yet.');
   }
 };
@@ -121,7 +81,7 @@ const exportCourses = () => {
             <option value="PDF">PDF</option>
           </select>
         </label>
-        <button @click="exportCourses">Export Courses</button> <!-- New export button -->
+        <button @click="exportCourses">Export Courses</button>
       </div>
 
       <div class="course-list">
@@ -144,7 +104,7 @@ const exportCourses = () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  overflow-y: auto; /* Allow vertical scrolling */
+  overflow-y: auto;
 }
 
 .centered-content {
@@ -161,7 +121,7 @@ const exportCourses = () => {
 }
 
 .filters button {
-  margin-left: 1rem; /* Add margin for the button */
+  margin-left: 1rem;
 }
 
 .course-list {
@@ -169,8 +129,8 @@ const exportCourses = () => {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
   justify-content: center;
-  max-height: 80vh; /* Limit height to allow scrolling */
-  overflow-y: auto; /* Allow vertical scrolling within the course list */
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .course-card {
