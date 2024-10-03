@@ -79,17 +79,56 @@ const closeDetails = () => {
   selectedCourse.value = null;
 };
 
-// Method to handle adding a new course
-const addNewCourse = async () => {
+const addOrEditCourse = async () => {
+  if (newCourse.id) {
+    // Edit existing course
+    try {
+      await axios.put(`http://localhost:3100/api/lessons/${newCourse.id}`, newCourse.value);
+      const index = courses.value.findIndex(course => course.id === newCourse.id);
+      courses.value[index] = { ...newCourse.value }; // Update the course in the local list
+      closeDetails(); // Close the details modal
+    } catch (error) {
+      console.error('Error updating course:', error.response || error.message);
+    }
+  } else {
+    // Add new course
+    try {
+      const response = await axios.post('http://localhost:3100/api/lessons', newCourse.value);
+      courses.value.push(response.data); // Add new course to the local list
+    } catch (error) {
+      console.error('Error adding course:', error.response || error.message);
+    }
+  }
+
+  // Reset the newCourse object
+  newCourse.value = {
+    title: '',
+    description: '',
+    dept: '',
+    level: '',
+    hours: ''
+  };
+  
+  showAddCourseModal.value = false; // Close modal
+};
+
+// Method to handle editing a course inside a course card
+const editCourse = (course) => {
+  newCourse.value = { ...course }; // Copy the selected course details into the newCourse object
+  showAddCourseModal.value = true; // Show the modal for editing
+};
+// Method to handle deleting a course inside a course card
+const deleteCourse = async (courseId) => {
   try {
-    const response = await axios.post('http://localhost:3100/api/lessons', newCourse.value);
-    courses.value.push(response.data); // Add new course to the local list
-    newCourse.value = { title: '', description: '', dept: '', level: '', hours: '' }; // Reset the form
-    showAddCourseModal.value = false; // Close modal
+    await axios.delete(`http://localhost:3100/api/lessons/${courseId}`);
+    courses.value = courses.value.filter(course => course.id !== courseId); // Remove deleted course from local list
+    closeDetails(); // Close the details modal
   } catch (error) {
-    console.error('Error adding course:', error.response || error.message);
+    console.error('Error deleting course:', error.response || error.message);
   }
 };
+
+
 </script>
 
 <template>
@@ -131,24 +170,29 @@ const addNewCourse = async () => {
           </div>
         </div>
 
-        <!-- Course Details Modal -->
-        <div v-if="selectedCourse" class="modal" @click.self="closeDetails">
-          <div class="modal-content">
-            <span class="close" @click="closeDetails">&times;</span>
-            <h2>{{ selectedCourse.course_number }}: {{ selectedCourse.name }}</h2>
-            <p><strong>Department:</strong> {{ selectedCourse.dept }}</p>
-            <p><strong>Level:</strong> {{ selectedCourse.level }}</p>
-            <p><strong>Hours:</strong> {{ selectedCourse.hours }}</p>
-            <p><strong>Description:</strong> {{ selectedCourse.description }}</p>
-          </div>
-        </div>
+<!-- Course Details Modal -->
+<div v-if="selectedCourse" class="modal" @click.self="closeDetails">
+  <div class="modal-content">
+    <span class="close" @click="closeDetails">&times;</span>
+    <h2>{{ selectedCourse.course_number }}: {{ selectedCourse.name }}</h2>
+    <p><strong>Department:</strong> {{ selectedCourse.dept }}</p>
+    <p><strong>Level:</strong> {{ selectedCourse.level }}</p>
+    <p><strong>Hours:</strong> {{ selectedCourse.hours }}</p>
+    <p><strong>Description:</strong> {{ selectedCourse.description }}</p>
+    
+    <!-- Edit Button -->
+    <button @click="editCourse(selectedCourse)">✏️ Edit</button>
+    <button @click="deleteCourse(selectedCourse.id)">🗑️ Delete</button>
+  </div>
+</div>
 
-        <!-- Add Course Modal -->
-        <div v-if="showAddCourseModal" class="modal" @click.self="showAddCourseModal = false">
-          <div class="modal-content">
-            <span class="close" @click="showAddCourseModal = false">&times;</span>
-            <h2>Add New Course</h2>
-    <form @submit.prevent="addNewCourse">
+
+       <!-- Add Course Modal -->
+<div v-if="showAddCourseModal" class="modal" @click.self="showAddCourseModal = false">
+  <div class="modal-content">
+    <span class="close" @click="showAddCourseModal = false">&times;</span>
+    <h2>{{ newCourse.id ? 'Edit Course' : 'Add New Course' }}</h2>
+    <form @submit.prevent="addOrEditCourse">
       <label>
         Department:
         <input v-model="newCourse.dept" type="text" required />
@@ -156,7 +200,8 @@ const addNewCourse = async () => {
       <label>
         Course Number:
         <input v-model="newCourse.course_number" type="text" required />
-      </label><label>
+      </label>
+      <label>
         Level:
         <input v-model="newCourse.level" type="text" required />
       </label>
@@ -172,10 +217,11 @@ const addNewCourse = async () => {
         Description:
         <textarea v-model="newCourse.description"></textarea>
       </label>
-      <button type="submit">Add Course</button>
+      <button type="submit">{{ newCourse.id ? 'Update Course' : 'Add Course' }}</button>
     </form>
   </div>
-        </div>
+</div>
+
       </div>
     </div>
   </div>
