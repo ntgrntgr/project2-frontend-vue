@@ -9,6 +9,7 @@ const departments = ref([]);
 const selectedDepartment = ref('All');
 const exportFormat = ref('CSV');
 const isLoading = ref(true); // Loading state
+const selectedCourse = ref(null); // To store the selected course for details
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => 
@@ -63,6 +64,16 @@ const exportCourses = () => {
     alert('PDF export functionality is not implemented yet.');
   }
 };
+
+// Method to open the selected course details
+const openCourseDetails = (course) => {
+  selectedCourse.value = course;
+};
+
+// Method to close the details modal
+const closeDetails = () => {
+  selectedCourse.value = null;
+};
 </script>
 
 <template>
@@ -92,22 +103,32 @@ const exportCourses = () => {
         <div v-if="isLoading" class="loading-indicator">Loading courses...</div> <!-- Loading indicator -->
 
         <div class="course-list" v-else>
-          <div v-for="course in filteredCourses" :key="course.id" class="course-card" @click="course.showDescription = !course.showDescription">
+          <div v-for="course in filteredCourses" :key="course.id" class="course-card" @click="openCourseDetails(course)">
             <h2>{{ course.course_number }}: {{ course.name }}</h2>
             <p><strong>Department:</strong> {{ course.dept }}</p>
             <p><strong>Level:</strong> {{ course.level }}</p>
             <p><strong>Hours:</strong> {{ course.hours }}</p>
             <p class="description" :title="course.description">
-              {{ course.showDescription ? course.description : course.description.length > 30 ? course.description.slice(0, 30) + '...' : course.description }}
+              {{ course.description.length > 30 ? course.description.slice(0, 30) + '...' : course.description }}
             </p>
+          </div>
+        </div>
+
+        <!-- Course Details Modal -->
+        <div v-if="selectedCourse" class="modal" @click.self="closeDetails">
+          <div class="modal-content">
+            <span class="close" @click="closeDetails">&times;</span>
+            <h2>{{ selectedCourse.course_number }}: {{ selectedCourse.name }}</h2>
+            <p><strong>Department:</strong> {{ selectedCourse.dept }}</p>
+            <p><strong>Level:</strong> {{ selectedCourse.level }}</p>
+            <p><strong>Hours:</strong> {{ selectedCourse.hours }}</p>
+            <p><strong>Description:</strong> {{ selectedCourse.description }}</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-
 
 <style scoped>
 .courses-container {
@@ -158,15 +179,45 @@ const exportCourses = () => {
   cursor: pointer; /* Indicate clickable card */
   transition: background-color 0.3s;
 }
-/*
-.course-card:hover {
-  background-color: #f0f0f0; /* Highlight on hover *
-}
-*/
 
 .description {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; /* Ensure single line */
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: rgba(0, 0, 0, 0.5);
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+  max-width: 600px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
 </style>
