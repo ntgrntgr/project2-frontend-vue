@@ -10,6 +10,14 @@ const selectedDepartment = ref('All');
 const exportFormat = ref('CSV');
 const isLoading = ref(true); // Loading state
 const selectedCourse = ref(null); // To store the selected course for details
+const newCourse = ref({
+  title: '',
+  description: '',
+  dept: '',
+  level: '',
+  hours: ''
+}); // To store new course details
+const showAddCourseModal = ref(false); // Control visibility of the add course modal
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => 
@@ -19,7 +27,6 @@ const filteredCourses = computed(() => {
 
 // Fetch courses from the backend API
 const fetchCourses = async () => {
-  // Check local storage first
   const cachedCourses = localStorage.getItem('courses');
   if (cachedCourses) {
     courses.value = JSON.parse(cachedCourses);
@@ -32,9 +39,9 @@ const fetchCourses = async () => {
     const response = await axios.get('http://localhost:3100/api/lessons'); 
     courses.value = response.data.map(course => ({
       ...course,
-      description: course.description || "None" // Default description if none exists
+      description: course.description || "None"
     }));
-    localStorage.setItem('courses', JSON.stringify(courses.value)); // Cache data
+    localStorage.setItem('courses', JSON.stringify(courses.value));
     const uniqueDepartments = [...new Set(courses.value.map(course => course.dept))];
     departments.value = ['All', ...uniqueDepartments];
   } catch (error) {
@@ -58,22 +65,70 @@ const exportCourses = () => {
   if (exportFormat.value === 'CSV') {
     const csvContent = "data:text/csv;charset=utf-8," + 
       data.map(e => Object.values(e).join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
     saveAs(new Blob([csvContent]), 'courses.csv');
   } else if (exportFormat.value === 'PDF') {
     alert('PDF export functionality is not implemented yet.');
   }
 };
 
-// Method to open the selected course details
 const openCourseDetails = (course) => {
   selectedCourse.value = course;
 };
 
-// Method to close the details modal
 const closeDetails = () => {
   selectedCourse.value = null;
 };
+
+const addOrEditCourse = async () => {
+  if (newCourse.id) {
+    // Edit existing course
+    try {
+      await axios.put(`http://localhost:3100/api/lessons/${newCourse.id}`, newCourse.value);
+      const index = courses.value.findIndex(course => course.id === newCourse.id);
+      courses.value[index] = { ...newCourse.value }; // Update the course in the local list
+      closeDetails(); // Close the details modal
+    } catch (error) {
+      console.error('Error updating course:', error.response || error.message);
+    }
+  } else {
+    // Add new course
+    try {
+      const response = await axios.post('http://localhost:3100/api/lessons', newCourse.value);
+      courses.value.push(response.data); // Add new course to the local list
+    } catch (error) {
+      console.error('Error adding course:', error.response || error.message);
+    }
+  }
+
+  // Reset the newCourse object
+  newCourse.value = {
+    title: '',
+    description: '',
+    dept: '',
+    level: '',
+    hours: ''
+  };
+  
+  showAddCourseModal.value = false; // Close modal
+};
+
+// Method to handle editing a course inside a course card
+const editCourse = (course) => {
+  newCourse.value = { ...course }; // Copy the selected course details into the newCourse object
+  showAddCourseModal.value = true; // Show the modal for editing
+};
+// Method to handle deleting a course inside a course card
+const deleteCourse = async (courseId) => {
+  try {
+    await axios.delete(`http://localhost:3100/api/lessons/${courseId}`);
+    courses.value = courses.value.filter(course => course.id !== courseId); // Remove deleted course from local list
+    closeDetails(); // Close the details modal
+  } catch (error) {
+    console.error('Error deleting course:', error.response || error.message);
+  }
+};
+
+
 </script>
 
 <template>
@@ -98,9 +153,10 @@ const closeDetails = () => {
             </select>
           </label>
           <button @click="exportCourses">Export Courses</button>
+          <button class="add-course-btn" @click="showAddCourseModal = true">+</button>
         </div>
 
-        <div v-if="isLoading" class="loading-indicator">Loading courses...</div> <!-- Loading indicator -->
+        <div v-if="isLoading" class="loading-indicator">Loading courses...</div>
 
         <div class="course-list" v-else>
           <div v-for="course in filteredCourses" :key="course.id" class="course-card" @click="openCourseDetails(course)">
@@ -114,17 +170,58 @@ const closeDetails = () => {
           </div>
         </div>
 
-        <!-- Course Details Modal -->
-        <div v-if="selectedCourse" class="modal" @click.self="closeDetails">
-          <div class="modal-content">
-            <span class="close" @click="closeDetails">&times;</span>
-            <h2>{{ selectedCourse.course_number }}: {{ selectedCourse.name }}</h2>
-            <p><strong>Department:</strong> {{ selectedCourse.dept }}</p>
-            <p><strong>Level:</strong> {{ selectedCourse.level }}</p>
-            <p><strong>Hours:</strong> {{ selectedCourse.hours }}</p>
-            <p><strong>Description:</strong> {{ selectedCourse.description }}</p>
-          </div>
-        </div>
+<!-- Course Details Modal -->
+<div v-if="selectedCourse" class="modal" @click.self="closeDetails">
+  <div class="modal-content">
+    <span class="close" @click="closeDetails">&times;</span>
+    <h2>{{ selectedCourse.course_number }}: {{ selectedCourse.name }}</h2>
+    <p><strong>Department:</strong> {{ selectedCourse.dept }}</p>
+    <p><strong>Level:</strong> {{ selectedCourse.level }}</p>
+    <p><strong>Hours:</strong> {{ selectedCourse.hours }}</p>
+    <p><strong>Description:</strong> {{ selectedCourse.description }}</p>
+    
+    <!-- Edit Button -->
+    <button @click="editCourse(selectedCourse)">✏️ Edit</button>
+    <button @click="deleteCourse(selectedCourse.id)">🗑️ Delete</button>
+  </div>
+</div>
+
+
+       <!-- Add Course Modal -->
+<div v-if="showAddCourseModal" class="modal" @click.self="showAddCourseModal = false">
+  <div class="modal-content">
+    <span class="close" @click="showAddCourseModal = false">&times;</span>
+    <h2>{{ newCourse.id ? 'Edit Course' : 'Add New Course' }}</h2>
+    <form @submit.prevent="addOrEditCourse">
+      <label>
+        Department:
+        <input v-model="newCourse.dept" type="text" required />
+      </label>
+      <label>
+        Course Number:
+        <input v-model="newCourse.course_number" type="text" required />
+      </label>
+      <label>
+        Level:
+        <input v-model="newCourse.level" type="text" required />
+      </label>
+      <label>
+        Hours:
+        <input v-model="newCourse.hours" type="number" required />
+      </label>
+      <label>
+        Name:
+        <input v-model="newCourse.name" type="text" required />
+      </label>
+      <label>
+        Description:
+        <textarea v-model="newCourse.description"></textarea>
+      </label>
+      <button type="submit">{{ newCourse.id ? 'Update Course' : 'Add Course' }}</button>
+    </form>
+  </div>
+</div>
+
       </div>
     </div>
   </div>
@@ -157,6 +254,19 @@ const closeDetails = () => {
   margin-left: 1rem;
 }
 
+.add-course-btn { /* push this button to the far right for nice look*/
+  margin-left: auto; /* Push it to the right */
+  padding: 0.01rem 0.1rem;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+.add-new-course-container{
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+}
+
 .loading-indicator {
   font-size: 1.5rem;
   color: #333;
@@ -176,14 +286,14 @@ const closeDetails = () => {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 1rem;
-  cursor: pointer; /* Indicate clickable card */
+  cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .description {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; /* Ensure single line */
+  white-space: nowrap;
 }
 
 /* Modal styles */
@@ -203,7 +313,7 @@ const closeDetails = () => {
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+  width: 80%;
   max-width: 600px;
 }
 
