@@ -10,6 +10,14 @@ const selectedDepartment = ref('All');
 const exportFormat = ref('CSV');
 const isLoading = ref(true); // Loading state
 const selectedCourse = ref(null); // To store the selected course for details
+const newCourse = ref({
+  title: '',
+  description: '',
+  dept: '',
+  level: '',
+  hours: ''
+}); // To store new course details
+const showAddCourseModal = ref(false); // Control visibility of the add course modal
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => 
@@ -19,7 +27,6 @@ const filteredCourses = computed(() => {
 
 // Fetch courses from the backend API
 const fetchCourses = async () => {
-  // Check local storage first
   const cachedCourses = localStorage.getItem('courses');
   if (cachedCourses) {
     courses.value = JSON.parse(cachedCourses);
@@ -32,9 +39,9 @@ const fetchCourses = async () => {
     const response = await axios.get('http://localhost:3100/api/lessons'); 
     courses.value = response.data.map(course => ({
       ...course,
-      description: course.description || "None" // Default description if none exists
+      description: course.description || "None"
     }));
-    localStorage.setItem('courses', JSON.stringify(courses.value)); // Cache data
+    localStorage.setItem('courses', JSON.stringify(courses.value));
     const uniqueDepartments = [...new Set(courses.value.map(course => course.dept))];
     departments.value = ['All', ...uniqueDepartments];
   } catch (error) {
@@ -58,21 +65,30 @@ const exportCourses = () => {
   if (exportFormat.value === 'CSV') {
     const csvContent = "data:text/csv;charset=utf-8," + 
       data.map(e => Object.values(e).join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
     saveAs(new Blob([csvContent]), 'courses.csv');
   } else if (exportFormat.value === 'PDF') {
     alert('PDF export functionality is not implemented yet.');
   }
 };
 
-// Method to open the selected course details
 const openCourseDetails = (course) => {
   selectedCourse.value = course;
 };
 
-// Method to close the details modal
 const closeDetails = () => {
   selectedCourse.value = null;
+};
+
+// Method to handle adding a new course
+const addNewCourse = async () => {
+  try {
+    const response = await axios.post('http://localhost:3100/api/lessons', newCourse.value);
+    courses.value.push(response.data); // Add new course to the local list
+    newCourse.value = { title: '', description: '', dept: '', level: '', hours: '' }; // Reset the form
+    showAddCourseModal.value = false; // Close modal
+  } catch (error) {
+    console.error('Error adding course:', error.response || error.message);
+  }
 };
 </script>
 
@@ -98,9 +114,10 @@ const closeDetails = () => {
             </select>
           </label>
           <button @click="exportCourses">Export Courses</button>
+          <button class="add-course-btn" @click="showAddCourseModal = true">+</button>
         </div>
 
-        <div v-if="isLoading" class="loading-indicator">Loading courses...</div> <!-- Loading indicator -->
+        <div v-if="isLoading" class="loading-indicator">Loading courses...</div>
 
         <div class="course-list" v-else>
           <div v-for="course in filteredCourses" :key="course.id" class="course-card" @click="openCourseDetails(course)">
@@ -123,6 +140,37 @@ const closeDetails = () => {
             <p><strong>Level:</strong> {{ selectedCourse.level }}</p>
             <p><strong>Hours:</strong> {{ selectedCourse.hours }}</p>
             <p><strong>Description:</strong> {{ selectedCourse.description }}</p>
+          </div>
+        </div>
+
+        <!-- Add Course Modal -->
+        <div v-if="showAddCourseModal" class="modal" @click.self="showAddCourseModal = false">
+          <div class="modal-content">
+            <span class="close" @click="showAddCourseModal = false">&times;</span>
+            <h2>Add New Course</h2>
+            <form @submit.prevent="addNewCourse">
+              <label>
+                Title:
+                <input type="text" v-model="newCourse.title" required />
+              </label>
+              <label>
+                Description:
+                <input type="text" v-model="newCourse.description" required />
+              </label>
+              <label>
+                Department:
+                <input type="text" v-model="newCourse.dept" required />
+              </label>
+              <label>
+                Level:
+                <input type="text" v-model="newCourse.level" required />
+              </label>
+              <label>
+                Hours:
+                <input type="number" v-model="newCourse.hours" required />
+              </label>
+              <button type="submit">Add Course</button>
+            </form>
           </div>
         </div>
       </div>
@@ -157,6 +205,19 @@ const closeDetails = () => {
   margin-left: 1rem;
 }
 
+.add-course-btn { /* push this button to the far right for nice look*/
+  margin-left: auto; /* Push it to the right */
+  padding: 0.01rem 0.1rem;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+.add-new-course-container{
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+}
+
 .loading-indicator {
   font-size: 1.5rem;
   color: #333;
@@ -176,14 +237,14 @@ const closeDetails = () => {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 1rem;
-  cursor: pointer; /* Indicate clickable card */
+  cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .description {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; /* Ensure single line */
+  white-space: nowrap;
 }
 
 /* Modal styles */
@@ -203,7 +264,7 @@ const closeDetails = () => {
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+  width: 80%;
   max-width: 600px;
 }
 
