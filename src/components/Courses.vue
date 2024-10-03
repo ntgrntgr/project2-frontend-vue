@@ -148,30 +148,33 @@ const addNewCourse = async () => {
           <div class="modal-content">
             <span class="close" @click="showAddCourseModal = false">&times;</span>
             <h2>Add New Course</h2>
-            <form @submit.prevent="addNewCourse">
-              <label>
-                Title:
-                <input type="text" v-model="newCourse.title" required />
-              </label>
-              <label>
-                Description:
-                <input type="text" v-model="newCourse.description" required />
-              </label>
-              <label>
-                Department:
-                <input type="text" v-model="newCourse.dept" required />
-              </label>
-              <label>
-                Level:
-                <input type="text" v-model="newCourse.level" required />
-              </label>
-              <label>
-                Hours:
-                <input type="number" v-model="newCourse.hours" required />
-              </label>
-              <button type="submit">Add Course</button>
-            </form>
-          </div>
+    <form @submit.prevent="addNewCourse">
+      <label>
+        Department:
+        <input v-model="newCourse.dept" type="text" required />
+      </label>
+      <label>
+        Course Number:
+        <input v-model="newCourse.course_number" type="text" required />
+      </label><label>
+        Level:
+        <input v-model="newCourse.level" type="text" required />
+      </label>
+      <label>
+        Hours:
+        <input v-model="newCourse.hours" type="number" required />
+      </label>
+      <label>
+        Name:
+        <input v-model="newCourse.name" type="text" required />
+      </label>
+      <label>
+        Description:
+        <textarea v-model="newCourse.description"></textarea>
+      </label>
+      <button type="submit">Add Course</button>
+    </form>
+  </div>
         </div>
       </div>
     </div>
