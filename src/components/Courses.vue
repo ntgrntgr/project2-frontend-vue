@@ -5,9 +5,10 @@ import axios from 'axios'; // Import axios for API calls
 import { saveAs } from 'file-saver';
 
 const courses = ref([]);
-const departments = ref([]); // Ref for departments
+const departments = ref([]);
 const selectedDepartment = ref('All');
 const exportFormat = ref('CSV');
+const isLoading = ref(true); // Loading state
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => 
@@ -17,17 +18,28 @@ const filteredCourses = computed(() => {
 
 // Fetch courses from the backend API
 const fetchCourses = async () => {
+  // Check local storage first
+  const cachedCourses = localStorage.getItem('courses');
+  if (cachedCourses) {
+    courses.value = JSON.parse(cachedCourses);
+    departments.value = ['All', ...new Set(courses.value.map(course => course.dept))];
+    isLoading.value = false; // Set loading to false
+    return;
+  }
+
   try {
     const response = await axios.get('http://localhost:3100/api/lessons'); 
     courses.value = response.data.map(course => ({
       ...course,
       description: course.description || "None" // Default description if none exists
     }));
-    // Extract unique departments
+    localStorage.setItem('courses', JSON.stringify(courses.value)); // Cache data
     const uniqueDepartments = [...new Set(courses.value.map(course => course.dept))];
-    departments.value = ['All', ...uniqueDepartments]; // Add 'All' option
+    departments.value = ['All', ...uniqueDepartments];
   } catch (error) {
     console.error('Error fetching courses:', error.response || error.message);
+  } finally {
+    isLoading.value = false; // Set loading to false
   }
 };
 
@@ -53,7 +65,6 @@ const exportCourses = () => {
 };
 </script>
 
-
 <template>
   <div>
     <Navbar />
@@ -78,7 +89,9 @@ const exportCourses = () => {
           <button @click="exportCourses">Export Courses</button>
         </div>
 
-        <div class="course-list">
+        <div v-if="isLoading" class="loading-indicator">Loading courses...</div> <!-- Loading indicator -->
+
+        <div class="course-list" v-else>
           <div v-for="course in filteredCourses" :key="course.id" class="course-card" @click="course.showDescription = !course.showDescription">
             <h2>{{ course.course_number }}: {{ course.name }}</h2>
             <p><strong>Department:</strong> {{ course.dept }}</p>
@@ -93,6 +106,7 @@ const exportCourses = () => {
     </div>
   </div>
 </template>
+
 
 
 <style scoped>
@@ -122,6 +136,12 @@ const exportCourses = () => {
   margin-left: 1rem;
 }
 
+.loading-indicator {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 1rem;
+}
+
 .course-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -138,8 +158,11 @@ const exportCourses = () => {
   cursor: pointer; /* Indicate clickable card */
   transition: background-color 0.3s;
 }
-
-
+/*
+.course-card:hover {
+  background-color: #f0f0f0; /* Highlight on hover *
+}
+*/
 
 .description {
   overflow: hidden;
