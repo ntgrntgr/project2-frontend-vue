@@ -5,27 +5,29 @@ import axios from 'axios'; // Import axios for API calls
 import { saveAs } from 'file-saver';
 
 const courses = ref([]);
-const departments = ['All', 'Computer Science', 'Mathematics']; // Add more departments as needed
-const semesters = ['All', 'Fall 2023', 'Spring 2024']; // Add more semesters as needed
-
+const departments = ref([]); // Ref for departments
 const selectedDepartment = ref('All');
-const selectedSemester = ref('All');
 const exportFormat = ref('CSV');
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => 
-    (selectedDepartment.value === 'All' || course.department === selectedDepartment.value) &&
-    (selectedSemester.value === 'All' || course.semester === selectedSemester.value)
+    (selectedDepartment.value === 'All' || course.dept === selectedDepartment.value)
   );
 });
 
 // Fetch courses from the backend API
 const fetchCourses = async () => {
   try {
-    const response = await axios.get('http://localhost:3100/api/course'); 
-    courses.value = response.data; // Assume your API returns an array of courses
+    const response = await axios.get('http://localhost:3100/api/lessons'); 
+    courses.value = response.data.map(course => ({
+      ...course,
+      description: course.description || "None" // Default description if none exists
+    }));
+    // Extract unique departments
+    const uniqueDepartments = [...new Set(courses.value.map(course => course.dept))];
+    departments.value = ['All', ...uniqueDepartments]; // Add 'All' option
   } catch (error) {
-    console.error('Error fetching courses:', error);
+    console.error('Error fetching courses:', error.response || error.message);
   }
 };
 
@@ -37,9 +39,7 @@ const exportCourses = () => {
   const data = filteredCourses.value.map(course => ({
     Title: course.title,
     Description: course.description,
-    Enrollment: course.enrollment,
-    Department: course.department,
-    Semester: course.semester,
+    Department: course.dept,
   }));
 
   if (exportFormat.value === 'CSV') {
@@ -53,49 +53,47 @@ const exportCourses = () => {
 };
 </script>
 
+
 <template>
   <div>
     <Navbar />
-  </div>
-  <div class="courses-container">
-    <div class="centered-content">
-      <h1 style="color: hsla(160, 100%, 37%, 1)">Courses</h1>
-      
-      <div class="filters">
-        <label>
-          Department:
-          <select v-model="selectedDepartment">
-            <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
-          </select>
-        </label>
-        <label>
-          Semester:
-          <select v-model="selectedSemester">
-            <option v-for="sem in semesters" :key="sem" :value="sem">{{ sem }}</option>
-          </select>
-        </label>
-        <label>
-          Export Format:
-          <select v-model="exportFormat">
-            <option value="CSV">CSV</option>
-            <option value="PDF">PDF</option>
-          </select>
-        </label>
-        <button @click="exportCourses">Export Courses</button>
-      </div>
+    <div class="courses-container">
+      <div class="centered-content">
+        <h1 style="color: hsla(160, 100%, 37%, 1)">Courses</h1>
+        
+        <div class="filters">
+          <label>
+            Department:
+            <select v-model="selectedDepartment">
+              <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
+            </select>
+          </label>
+          <label>
+            Export Format:
+            <select v-model="exportFormat">
+              <option value="CSV">CSV</option>
+              <option value="PDF">PDF</option>
+            </select>
+          </label>
+          <button @click="exportCourses">Export Courses</button>
+        </div>
 
-      <div class="course-list">
-        <div v-for="course in filteredCourses" :key="course.id" class="course-card">
-          <h2>{{ course.title }}</h2>
-          <p>{{ course.description }}</p>
-          <p>Enrollment: {{ course.enrollment }}</p>
-          <p>Department: {{ course.department }}</p>
-          <p>Semester: {{ course.semester }}</p>
+        <div class="course-list">
+          <div v-for="course in filteredCourses" :key="course.id" class="course-card" @click="course.showDescription = !course.showDescription">
+            <h2>{{ course.course_number }}: {{ course.name }}</h2>
+            <p><strong>Department:</strong> {{ course.dept }}</p>
+            <p><strong>Level:</strong> {{ course.level }}</p>
+            <p><strong>Hours:</strong> {{ course.hours }}</p>
+            <p class="description" :title="course.description">
+              {{ course.showDescription ? course.description : course.description.length > 30 ? course.description.slice(0, 30) + '...' : course.description }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .courses-container {
@@ -137,5 +135,15 @@ const exportCourses = () => {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 1rem;
+  cursor: pointer; /* Indicate clickable card */
+  transition: background-color 0.3s;
+}
+
+
+
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Ensure single line */
 }
 </style>
