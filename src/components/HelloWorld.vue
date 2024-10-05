@@ -61,13 +61,16 @@ const filteredCourses = computed(() => {
       />
       <button>Search</button>
     </div>
-
+  </div>
     <!-- Container for displaying filtered courses -->
+     <div class="search-results">
     <div v-if="!isLoading && filteredCourses.length > 0" class="search-results">
+    </div>
       <h4>Search Results:</h4>
       <div class="course-list">
         <div 
-          v-for="course in filteredCourses.slice(0, 5)" 
+        
+          v-for="course in filteredCourses.slice(0, 9)" 
           :key="course.id" 
           class="course-card"
         >
@@ -82,31 +85,33 @@ const filteredCourses = computed(() => {
         <p>Scroll down for more results...</p>
       </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
 .greetings {
-  display: flex;
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center items horizontally */
-  margin: 20px; /* Optional: Add some margin */
+  position: relative;
+  left: 200px;
 }
 
+
 h1 {
+  position: relative;
+  left: 300px;
   font-weight: 500;
   font-size: 2.6rem;
+  white-space: nowrap; /* Prevents text from wrapping */
 }
 
 h3 {
+  position: relative;
+  left: 300px;
   font-size: 1.2rem;
 }
 
 .search-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
+  position: relative;
+  left: 300px;
+  margin-top: 20px; /* This can be adjusted if you want more space */
 }
 
 .search-bar input {
@@ -117,19 +122,22 @@ h3 {
 }
 
 .search-bar button {
+
   padding: 10px 20px;
   background-color: #42b983;
   color: white;
-  border: none;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
-  margin-left: 2px;
+  position: relative;
+  left: 5px;
 }
 
 .search-results {
-  margin-top: 10px; /* Space between the search bar and the results */
+  position: relative;
+  right: 200px;
+  margin-top: 360px; /* Space below the search bar */
   width: 100%; /* Ensure it takes full width */
-  display: flex;
+  display: flex;  
   flex-direction: column; /* Stack results vertically */
   align-items: center; /* Center results horizontally */
 }
@@ -138,9 +146,11 @@ h3 {
   display: flex;
   flex-wrap: wrap; /* Allow cards to wrap into a new row */
   justify-content: center; /* Center the course cards */
-  max-height: 300px; /* Limit height of the course cards container */
+  max-height: 400px; /* Set a maximum height for the course list */
   overflow-y: auto; /* Allow vertical scrolling */
+  margin-top: 20px; /* Space between search results and course list */
 }
+
 
 .course-card {
   border: 1px solid #ccc;
