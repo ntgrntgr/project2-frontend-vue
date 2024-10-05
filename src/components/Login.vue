@@ -1,15 +1,47 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import gAuthPlugin from 'vue3-google-oauth2';
 
 const router = useRouter();
 
 const loginWithGoogle = () => {
-  // This function will be implemented to trigger Google OAuth
-  console.log('Initiating Google login');
-  // For now, we'll simulate a successful login
-  localStorage.setItem('isAuthenticated', 'true');
-  router.push({ name: 'home' });
+  // Load the Google Auth library
+  const { gapi } = window;
+
+  gapi.load('client:auth2', () => {
+    gapi.auth2.init({
+      client_id: '175513569008-vju8cuj2d19mrnpq9rf3ck9n0ge1h83d.apps.googleusercontent.com' // Set this in your .env file
+    }).then(() => {
+      const authInstance = gapi.auth2.getAuthInstance();
+      authInstance.signIn().then((googleUser) => {
+        const id_token = googleUser.getAuthResponse().id_token;
+
+        // Send the id_token to your backend for verification
+        fetch('http://your-backend-url/tutorial/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ credential: id_token })
+})
+
+        .then(response => response.json())
+        .then(data => {
+          if (data.token) {
+            // Store the token and update the authentication state
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('token', data.token);
+            router.push({ name: 'home' });
+          } else {
+            console.error('Login failed:', data);
+          }
+        })
+        .catch(err => console.error('Error:', err));
+      });
+    });
+  });
 };
+
 </script>
 
 <template>
