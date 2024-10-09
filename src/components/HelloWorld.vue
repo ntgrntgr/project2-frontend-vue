@@ -140,6 +140,7 @@ h3 {
   display: flex;  
   flex-direction: column; /* Stack results vertically */
   align-items: center; /* Center results horizontally */
+  z-index: 500; /* Lower than the navbar */
 }
 
 .course-list {

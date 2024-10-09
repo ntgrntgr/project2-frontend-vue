@@ -270,7 +270,7 @@ const deleteCourse = async (courseId) => {
 }
 .add-new-course-container{
 
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(0, 189, 126);
 
 }
 
@@ -313,6 +313,8 @@ const deleteCourse = async (courseId) => {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.5);
+  
+  
 }
 
 .modal-content {
@@ -324,6 +326,7 @@ const deleteCourse = async (courseId) => {
   max-width: 600px;
   display: flex;
   flex-direction: column;
+  color:gainsboro;
 }
 
 
@@ -337,7 +340,7 @@ const deleteCourse = async (courseId) => {
   width: 150px; /* Fixed width for labels */
 }
 .close {
-  color: #aaa;
+  color: rgb(207, 29, 29);
   float: right;
   font-size: 28px;
   font-weight: bold;
@@ -345,7 +348,7 @@ const deleteCourse = async (courseId) => {
 
 .close:hover,
 .close:focus {
-  color: black;
+  color: #f10000;
   text-decoration: none;
   cursor: pointer;
 }
