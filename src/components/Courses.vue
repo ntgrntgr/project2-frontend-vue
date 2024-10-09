@@ -153,7 +153,7 @@ const deleteCourse = async (courseId) => {
             </select>
           </label>
           <button @click="exportCourses">Export Courses</button>
-          <button class="add-course-btn" @click="showAddCourseModal = true">+</button>
+          <button class="add-course-btn" @click="showAddCourseModal = true">Add Course</button>
         </div>
 
         <div v-if="isLoading" class="loading-indicator">Loading courses...</div>
@@ -188,36 +188,36 @@ const deleteCourse = async (courseId) => {
 
 
        <!-- Add Course Modal -->
-<div v-if="showAddCourseModal" class="modal" @click.self="showAddCourseModal = false">
+       <div v-if="showAddCourseModal" class="modal" @click.self="showAddCourseModal = false">
   <div class="modal-content">
     <span class="close" @click="showAddCourseModal = false">&times;</span>
     <h2>{{ newCourse.id ? 'Edit Course' : 'Add New Course' }}</h2>
     <form @submit.prevent="addOrEditCourse">
-      <label>
-        Department:
+      <div class="form-group">
+        <label>Department:</label>
         <input v-model="newCourse.dept" type="text" required />
-      </label>
-      <label>
-        Course Number:
+      </div>
+      <div class="form-group">
+        <label>Course Number:</label>
         <input v-model="newCourse.course_number" type="text" required />
-      </label>
-      <label>
-        Level:
+      </div>
+      <div class="form-group">
+        <label>Level:</label>
         <input v-model="newCourse.level" type="text" required />
-      </label>
-      <label>
-        Hours:
+      </div>
+      <div class="form-group">
+        <label>Hours:</label>
         <input v-model="newCourse.hours" type="number" required />
-      </label>
-      <label>
-        Name:
+      </div>
+      <div class="form-group">
+        <label>Name:</label>
         <input v-model="newCourse.name" type="text" required />
-      </label>
-      <label>
-        Description:
+      </div>
+      <div class="form-group">
+        <label>Description:</label>
         <textarea v-model="newCourse.description"></textarea>
-      </label>
-      <button type="submit">{{ newCourse.id ? 'Update Course' : 'Add Course' }}</button>
+      </div>
+      <button type="submit" class="add-course-button">{{ newCourse.id ? 'Update Course' : 'Add Course' }}</button>
     </form>
   </div>
 </div>
@@ -255,15 +255,22 @@ const deleteCourse = async (courseId) => {
 }
 
 .add-course-btn { /* push this button to the far right for nice look*/
-  margin-left: auto; /* Push it to the right */
-  padding: 0.01rem 0.1rem;
-  font-size: .9rem;
-  cursor: pointer;
+  background-color: rgb(0, 189, 126); /* Green background */
+  color: white; /* White text */
+  border: none; /* No border */
+  padding: 5px 5px; /* Padding for button */
+  cursor: pointer; /* Pointer cursor */
+  float: rigt;
+  border-radius: 10px; /* Rounded edges */
 }
 
+
+.add-course-button:hover {
+  background-color: rgb(250, 250, 250); /* Darker green on hover */
+}
 .add-new-course-container{
 
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(0, 189, 126);
 
 }
 
@@ -306,6 +313,8 @@ const deleteCourse = async (courseId) => {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.5);
+  
+  
 }
 
 .modal-content {
@@ -315,10 +324,23 @@ const deleteCourse = async (courseId) => {
   border: 1px solid #888;
   width: 80%;
   max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  color:gainsboro;
 }
 
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px; /* Space between fields */}
+
+.form-group label {
+  margin-right: 10px; /* Space between label and input */
+  width: 150px; /* Fixed width for labels */
+}
 .close {
-  color: #aaa;
+  color: rgb(207, 29, 29);
   float: right;
   font-size: 28px;
   font-weight: bold;
@@ -326,7 +348,7 @@ const deleteCourse = async (courseId) => {
 
 .close:hover,
 .close:focus {
-  color: black;
+  color: #f10000;
   text-decoration: none;
   cursor: pointer;
 }

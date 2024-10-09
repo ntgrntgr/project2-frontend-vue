@@ -1,0 +1,11 @@
+body {
+    background-color: rgba(247, 237, 237, 0.575); /* Light mode */
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: black; /* Dark mode */
+      color: white; /* Adjust text color for readability */
+    }
+  }
+  
