@@ -89,28 +89,33 @@ const filteredCourses = computed(() => {
 
 <style scoped>
 .greetings {
-  position: relative;
-  left: 200px;
+  position: absolute;
+  /*left: 200px;*/
 }
 
 
 h1 {
-  position: relative;
-  left: 300px;
+  position: absolute;
+  left: -220px;
+  bottom: 20px;
   font-weight: 500;
   font-size: 2.6rem;
   white-space: nowrap; /* Prevents text from wrapping */
 }
 
 h3 {
-  position: relative;
-  left: 300px;
+  position: absolute;
+  left: -200px;
+  bottom: -10px;
+  white-space: nowrap; /* Prevents text from wrapping */
   font-size: 1.2rem;
 }
 
 .search-bar {
-  position: relative;
-  left: 300px;
+  position: absolute;
+  top: 0px;
+  white-space: nowrap; /* Prevents text from wrapping */
+  left: -200px;
   margin-top: 20px; /* This can be adjusted if you want more space */
 }
 
@@ -133,8 +138,9 @@ h3 {
 }
 
 .search-results {
-  position: relative;
-  right: 200px;
+  position: absolute;
+  right: 40px;
+  top: 10px;
   margin-top: 360px; /* Space below the search bar */
   width: 100%; /* Ensure it takes full width */
   display: flex;  
