@@ -70,7 +70,7 @@ const filteredCourses = computed(() => {
       <div class="course-list">
         <div 
         
-          v-for="course in filteredCourses.slice(0, 9)" 
+          v-for="course in filteredCourses.slice(0, n)" 
           :key="course.id" 
           class="course-card"
         >
