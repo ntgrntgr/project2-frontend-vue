@@ -1,56 +1,82 @@
-<script setup>
-import { useRouter } from 'vue-router';
-import gAuthPlugin from 'vue3-google-oauth2';
 
-const router = useRouter();
+<script>
+import { ref, onMounted } from 'vue';
 
-const loginWithGoogle = () => {
-  // Load the Google Auth library
-  const { gapi } = window;
+export default {
+  setup() {
+    const isGapiLoaded = ref(false);
 
-  gapi.load('client:auth2', () => {
-    gapi.auth2.init({
-      client_id: '175513569008-vju8cuj2d19mrnpq9rf3ck9n0ge1h83d.apps.googleusercontent.com' // Set this in your .env file
-    }).then(() => {
-      const authInstance = gapi.auth2.getAuthInstance();
-      authInstance.signIn().then((googleUser) => {
-        const id_token = googleUser.getAuthResponse().id_token;
-
-        // Send the id_token to your backend for verification
-        fetch('http://your-backend-url/tutorial/login', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ credential: id_token })
-})
-
-        .then(response => response.json())
-        .then(data => {
-          if (data.token) {
-            // Store the token and update the authentication state
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('token', data.token);
-            router.push({ name: 'home' });
-          } else {
-            console.error('Login failed:', data);
-          }
-        })
-        .catch(err => console.error('Error:', err));
+    const loadGapi = () => {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://apis.google.com/js/platform.js';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+          resolve();
+        };
+        script.onerror = () => {
+          reject(new Error('Failed to load Google API script'));
+        };
+        document.head.appendChild(script);
       });
-    });
-  });
-};
+    };
 
+    const initializeGapi = () => {
+      return new Promise((resolve, reject) => {
+        window.gapi.load('auth2', () => {
+          window.gapi.auth2.init({
+            client_id: '175513569008-vju8cuj2d19mrnpq9rf3ck9n0ge1h83d.apps.googleusercontent.com',
+          },(error) => {
+            console.error('Error loading auth2:', error)}
+          ).then(() => {
+            isGapiLoaded.value = true;
+            resolve();
+          }).catch(error => {
+            console.error('Error initializing Google Auth', error);
+            reject(error);
+          });
+        });
+      });
+    };
+
+    const loginWithGoogle = async () => {
+      if (!isGapiLoaded.value) {
+        console.error('Google API not loaded yet');
+        return;
+      }
+
+      const auth2 = window.gapi.auth2.getAuthInstance();
+      auth2.signIn().then((googleUser) => {
+        // Handle successful login here
+        console.log('User signed in:', googleUser);
+      }).catch(error => {
+        console.error('Login failed:', error);
+      });
+    };
+
+    onMounted(async () => {
+      try {
+        await loadGapi();
+        await initializeGapi();
+      } catch (error) {
+        console.error('Error loading Google API:', error);
+      }
+    });
+
+    return {
+      loginWithGoogle,
+    };
+  },
+};
 </script>
+
 
 <template>
   <div class="login-container">
     <div class="greetings">
       <h1 class="green">Welcome to CourseHub</h1>
-      <h3>
-        Find the perfect course to enhance your skills
-      </h3>
+      <h3>Find the perfect course to enhance your skills</h3>
       <div class="login-form">
         <button @click="loginWithGoogle" class="google-login-button">
           Login with Google
