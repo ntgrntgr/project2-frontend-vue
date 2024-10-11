@@ -1,4 +1,4 @@
-name: DEPLOY TO STAGING(vue)
+name: DEPLOY TO STAGING
 
 on:
   push:
